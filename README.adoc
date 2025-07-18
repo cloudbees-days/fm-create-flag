@@ -1,0 +1,143 @@
+= CloudBees action: Create Feature Management Flag
+
+Create new feature flags in CloudBees Feature Management within a specified application.
+
+== Inputs
+
+[cols="2a,2a,2a,5a",options="header"]
+.Input details
+|===
+
+| Input name
+| Data type
+| Required?
+| Description
+
+| `token`
+| String
+| Yes
+| CloudBees Feature Management API token
+
+| `org-id`
+| String
+| Yes
+| CloudBees organization ID
+
+| `application-name`
+| String
+| Yes
+| Name of the application where the flag will be created
+
+| `flag-name`
+| String
+| Yes
+| Name of the feature flag to create (must be unique within the application)
+
+| `flag-type`
+| String
+| No
+| Type of the flag: `Boolean` (default), `String`, or `Number`
+
+| `description`
+| String
+| No
+| Human-readable description of the feature flag
+
+| `variants`
+| YAML Array
+| No
+| List of flag variants (required for non-Boolean flags)
+
+| `is-permanent`
+| Boolean
+| No
+| Whether the flag is permanent (cannot be deleted). Default is `false`
+
+| `api-url`
+| String
+| No
+| CloudBees API base URL. Default is `https://api.cloudbees.io`
+
+|===
+
+== Outputs
+
+[cols="2a,2a,5a",options="header"]
+.Output details
+|===
+
+| Output name
+| Data type
+| Description
+
+| `flag-id`
+| String
+| The unique ID of the created feature flag
+
+| `flag-name`
+| String
+| The name of the created feature flag
+
+| `flag-type`
+| String
+| The type of the created feature flag
+
+|===
+
+== Usage Examples
+
+=== Create a Boolean Flag
+
+[source,yaml]
+----
+- name: Create feature flag
+  uses: https://github.com/cloudbees-days/fm-create-flag@v1
+  id: create-flag
+  with:
+    token: ${{ secrets.CLOUDBEES_API_TOKEN }}
+    org-id: ${{ vars.CLOUDBEES_ORG_ID }}
+    application-name: ${{ vars.APPLICATION_NAME }}
+    flag-name: "new-checkout-flow"
+    description: "Enables the new checkout experience"
+----
+
+=== Create a String Flag with Variants
+
+[source,yaml]
+----
+- name: Create theme flag
+  uses: https://github.com/cloudbees-days/fm-create-flag@v1
+  with:
+    token: ${{ secrets.CLOUDBEES_API_TOKEN }}
+    org-id: ${{ vars.CLOUDBEES_ORG_ID }}
+    application-name: ${{ vars.APPLICATION_NAME }}
+    flag-name: "ui-theme"
+    flag-type: "String"
+    description: "Controls UI theme selection"
+    variants: |
+      - "light"
+      - "dark"
+      - "auto"
+----
+
+== Setup
+
+=== Authentication
+
+Store your CloudBees Feature Management API token as a secret:
+- `CLOUDBEES_API_TOKEN`: Your Feature Management API token
+
+=== Troubleshooting
+
+**Flag Already Exists**: Flag names must be unique within the application
+**Permission Errors**: Ensure your API token has permission to create flags
+**Invalid Variants**: Non-Boolean flags require explicit variants
+
+== License
+
+This code is made available under the 
+link:https://opensource.org/license/mit/[MIT license].
+
+== References
+
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform-actions/latest/[using actions in CloudBees workflows]. 

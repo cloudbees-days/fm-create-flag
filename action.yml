@@ -1,0 +1,68 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
+name: fm-create-flag
+description: "Create a new feature flag in CloudBees Feature Management"
+inputs:
+  token:
+    description: "CloudBees Feature Management API token"
+    required: true
+  org-id:
+    description: "CloudBees organization ID"
+    required: true
+  application-name:
+    description: "Application name where the flag will be created"
+    required: true
+  flag-name:
+    description: "Name of the feature flag to create"
+    required: true
+  flag-type:
+    description: "Type of the flag (Boolean, String, Number)"
+    default: "Boolean"
+    required: false
+  description:
+    description: "Description of the feature flag"
+    default: ""
+    required: false
+  variants:
+    description: "YAML list of flag variants (for non-Boolean flags)"
+    default: ""
+    required: false
+  is-permanent:
+    description: "Whether the flag is permanent (true/false)"
+    default: "false"
+    required: false
+  api-url:
+    description: "CloudBees API URL"
+    default: "https://api.cloudbees.io"
+    required: false
+
+outputs:
+  flag-id:
+    value: ${{ steps.create-flag.outputs.flag-id }}
+    description: "The ID of the created feature flag"
+  flag-name:
+    value: ${{ steps.create-flag.outputs.flag-name }}
+    description: "The name of the created feature flag"
+  flag-type:
+    value: ${{ steps.create-flag.outputs.flag-type }}
+    description: "The type of the created feature flag"
+
+runs:
+  using: composite
+  steps:
+    - id: create-flag
+      name: Create Feature Flag
+      uses: docker://ldonleycb/fm-actions:latest
+      shell: sh
+      run: |
+        /app/fm-actions create-flag \
+          --token "${{ inputs.token }}" \
+          --org-id "${{ inputs.org-id }}" \
+          --application-name "${{ inputs.application-name }}" \
+          --flag-name "${{ inputs.flag-name }}" \
+          --flag-type "${{ inputs.flag-type }}" \
+          --description "${{ inputs.description }}" \
+          ${{ inputs.variants && format('--variants "{0}"', inputs.variants) || '' }} \
+          --is-permanent "${{ inputs.is-permanent }}" \
+          --api-url "${{ inputs.api-url }}" \
+          --verbose
